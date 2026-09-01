@@ -85,6 +85,40 @@ defmodule Opsdesk.AccountsTest do
       assert is_nil(user.confirmed_at)
       assert is_nil(user.password)
     end
+
+    test "defaults new users to the employee role" do
+      {:ok, user} = Accounts.register_user(valid_user_attributes())
+      assert user.role == :employee
+    end
+
+    test "ignores a role supplied at registration" do
+      {:ok, user} = Accounts.register_user(valid_user_attributes(role: :admin))
+      assert user.role == :employee
+    end
+  end
+
+  describe "update_user_role/2" do
+    test "updates the role" do
+      user = user_fixture()
+      assert user.role == :employee
+
+      {:ok, updated} = Accounts.update_user_role(user, :admin)
+      assert updated.role == :admin
+      assert Repo.get!(User, user.id).role == :admin
+    end
+
+    test "accepts every valid role" do
+      for role <- [:employee, :admin, :hr, :finance, :ceo, :management] do
+        user = user_fixture()
+        assert {:ok, %User{role: ^role}} = Accounts.update_user_role(user, role)
+      end
+    end
+
+    test "rejects an unknown role" do
+      user = user_fixture()
+      assert {:error, changeset} = Accounts.update_user_role(user, :superuser)
+      assert %{role: ["is invalid"]} = errors_on(changeset)
+    end
   end
 
   describe "sudo_mode?/2" do

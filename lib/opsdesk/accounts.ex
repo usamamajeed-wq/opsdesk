@@ -294,4 +294,13 @@ defmodule Opsdesk.Accounts do
       end
     end)
   end
+
+  @doc """
+  Updates a user's role. Callers must verify the acting user is an admin.
+  """
+  def update_user_role(%User{} = user, role) do
+    user
+    |> User.role_changeset(%{role: role})
+    |> Repo.update()
+  end
 end
