@@ -6,6 +6,7 @@ defmodule OpsdeskWeb.UserAuth do
 
   alias Opsdesk.Accounts
   alias Opsdesk.Accounts.Scope
+  alias Opsdesk.Accounts.Policy
 
   # Make the remember me cookie valid for 14 days. This should match
   # the session validity setting in UserToken.
@@ -194,6 +195,12 @@ defmodule OpsdeskWeb.UserAuth do
       on user_token.
       Redirects to login page if there's no logged user.
 
+    * `{:ensure_permission, action}` - Authorizes the mounted user against
+      `Opsdesk.Accounts.Policy.can?/2` for the given action.
+      Redirects to the home page if the user may not perform it.
+
+          on_mount {OpsdeskWeb.UserAuth, {:ensure_permission, :view_financials}}
+
   ## Examples
 
   Use the `on_mount` lifecycle macro in LiveViews to mount or authenticate
@@ -246,6 +253,22 @@ defmodule OpsdeskWeb.UserAuth do
     end
   end
 
+  def on_mount({:ensure_permission, action}, _params, session, socket) do
+    socket = mount_current_scope(socket, session)
+    user = socket.assigns.current_scope && socket.assigns.current_scope.user
+
+    if Policy.can?(user, action) do
+      {:cont, socket}
+    else
+      socket =
+        socket
+        |> Phoenix.LiveView.put_flash(:error, "You are not authorized to access this page.")
+        |> Phoenix.LiveView.redirect(to: ~p"/")
+
+      {:halt, socket}
+    end
+  end
+
   defp mount_current_scope(socket, session) do
     Phoenix.Component.assign_new(socket, :current_scope, fn ->
       {user, _} =
@@ -285,4 +308,20 @@ defmodule OpsdeskWeb.UserAuth do
   end
 
   defp maybe_store_return_to(conn), do: conn
+
+  @doc """
+  Plug: halts with a 403-style redirect unless the current user may perform `action`.
+
+      plug :require_permission, :view_financials
+  """
+  def require_permission(conn, action) do
+    if Policy.can?(conn.assigns.current_scope && conn.assigns.current_scope.user, action) do
+      conn
+    else
+      conn
+      |> put_flash(:error, "You are not authorized to access this page.")
+      |> redirect(to: ~p"/")
+      |> halt()
+    end
+  end
 end

@@ -9,6 +9,10 @@ defmodule Opsdesk.Accounts.User do
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
 
+    field :role, Ecto.Enum,
+      values: [:employee, :admin, :hr, :finance, :ceo, :management],
+      default: :employee
+
     timestamps(type: :utc_datetime)
   end
 
@@ -128,5 +132,14 @@ defmodule Opsdesk.Accounts.User do
   def valid_password?(_, _) do
     Bcrypt.no_user_verify()
     false
+  end
+
+  @doc """
+  Changeset for changing a user's role. Admin-only; never reachable from registration.
+  """
+  def role_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:role])
+    |> validate_required([:role])
   end
 end
