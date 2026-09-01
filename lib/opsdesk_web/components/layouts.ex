@@ -51,6 +51,26 @@ defmodule OpsdeskWeb.Layouts do
           <li :for={{label, path} <- @nav_links}>
             <.link navigate={path} class="btn btn-ghost btn-sm">{label}</.link>
           </li>
+
+          <%= if @current_scope do %>
+            <li class="text-sm opacity-70 px-2">{@current_scope.user.email}</li>
+            <li>
+              <.link href={~p"/users/settings"} class="btn btn-ghost btn-sm">Settings</.link>
+            </li>
+            <li>
+              <.link href={~p"/users/log-out"} method="delete" class="btn btn-ghost btn-sm">
+                Log out
+              </.link>
+            </li>
+          <% else %>
+            <li>
+              <.link href={~p"/users/register"} class="btn btn-ghost btn-sm">Register</.link>
+            </li>
+            <li>
+              <.link href={~p"/users/log-in"} class="btn btn-primary btn-sm">Log in</.link>
+            </li>
+          <% end %>
+
           <li>
             <.theme_toggle />
           </li>
