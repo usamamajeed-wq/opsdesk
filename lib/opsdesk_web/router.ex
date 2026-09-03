@@ -72,4 +72,19 @@ defmodule OpsdeskWeb.Router do
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
   end
+
+  scope "/admin", OpsdeskWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :admin,
+      on_mount: [
+        {OpsdeskWeb.UserAuth, :require_authenticated},
+        {OpsdeskWeb.UserAuth, {:ensure_permission, :manage_categories}}
+      ] do
+      live "/categories", CategoryLive.Index, :index
+      live "/categories/new", CategoryLive.Form, :new
+      live "/categories/:id/edit", CategoryLive.Form, :edit
+      live "/categories/:id", CategoryLive.Show, :show
+    end
+  end
 end

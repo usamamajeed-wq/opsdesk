@@ -57,6 +57,9 @@ defmodule OpsdeskWeb.Layouts do
             <li>
               <.link href={~p"/users/settings"} class="btn btn-ghost btn-sm">Settings</.link>
             </li>
+            <li :if={Opsdesk.Accounts.Policy.can?(@current_scope.user, :manage_categories)}>
+              <.link navigate={~p"/admin/categories"} class="btn btn-ghost btn-sm">Categories</.link>
+            </li>
             <li>
               <.link href={~p"/users/log-out"} method="delete" class="btn btn-ghost btn-sm">
                 Log out
