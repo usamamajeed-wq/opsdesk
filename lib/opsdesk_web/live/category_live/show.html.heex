@@ -1,0 +1,52 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <.header>
+    {@category.name}
+    <:subtitle>{@category.slug}</:subtitle>
+    <:actions>
+      <.button navigate={~p"/admin/categories/#{@category}/edit"}>Edit category</.button>
+      <.button navigate={~p"/admin/categories"}>Back</.button>
+    </:actions>
+  </.header>
+
+  <h2 class="text-base font-semibold mt-6 mb-2">Custom fields</h2>
+
+  <p :if={@category.custom_fields == []} class="text-sm text-base-content/70">
+    No custom fields yet.
+  </p>
+
+  <.table :if={@category.custom_fields != []} id="custom-fields" rows={@category.custom_fields}>
+    <:col :let={field} label="Pos">{field.position}</:col>
+    <:col :let={field} label="Name">{field.name}</:col>
+    <:col :let={field} label="Type">{field.field_type}</:col>
+    <:col :let={field} label="Required">{if field.required, do: "yes", else: "no"}</:col>
+
+    <:action :let={field}>
+      <.link phx-click="edit_field" phx-value-id={field.id}>Edit</.link>
+    </:action>
+    <:action :let={field}>
+      <.link phx-click="delete_field" phx-value-id={field.id} data-confirm="Delete this field?">
+        Delete
+      </.link>
+    </:action>
+  </.table>
+
+  <h3 class="text-sm font-semibold mt-8 mb-2">
+    {if @editing, do: "Edit field", else: "Add a field"}
+  </h3>
+
+  <.form for={@field_form} id="field-form" phx-change="validate_field" phx-submit="save_field">
+    <div class="flex flex-wrap gap-4 items-end">
+      <.input field={@field_form[:name]} type="text" label="Name" />
+      <.input field={@field_form[:field_type]} type="select" label="Type" options={@field_types} />
+      <.input field={@field_form[:position]} type="number" label="Position" />
+      <.input field={@field_form[:required]} type="checkbox" label="Required" />
+    </div>
+
+    <div class="mt-4 flex gap-2">
+      <.button variant="primary" phx-disable-with="Saving...">
+        {if @editing, do: "Update field", else: "Add field"}
+      </.button>
+      <.link :if={@editing} phx-click="cancel_edit" class="btn btn-primary btn-soft">Cancel</.link>
+    </div>
+  </.form>
+</Layouts.app>

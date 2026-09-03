@@ -8,6 +8,7 @@ defmodule Opsdesk.Repo.Migrations.CreateCategoriesAndCustomFields do
 
       timestamps(type: :utc_datetime)
     end
+
     create unique_index(:categories, [:slug])
 
     create table(:custom_fields) do
@@ -22,6 +23,5 @@ defmodule Opsdesk.Repo.Migrations.CreateCategoriesAndCustomFields do
 
     create index(:custom_fields, [:category_id])
     create unique_index(:custom_fields, [:category_id, :name])
-
   end
 end

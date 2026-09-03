@@ -1,0 +1,33 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <.header>
+    Categories
+    <:subtitle>Asset types and the custom fields they define.</:subtitle>
+    <:actions>
+      <.button navigate={~p"/admin/categories/new"} variant="primary">
+        New Category
+      </.button>
+    </:actions>
+  </.header>
+
+  <.table id="categories" rows={@categories}>
+    <:col :let={category} label="Name">{category.name}</:col>
+    <:col :let={category} label="Slug">{category.slug}</:col>
+    <:col :let={category} label="Fields">{length(category.custom_fields)}</:col>
+
+    <:action :let={category}>
+      <.link navigate={~p"/admin/categories/#{category}"}>Manage</.link>
+    </:action>
+    <:action :let={category}>
+      <.link navigate={~p"/admin/categories/#{category}/edit"}>Edit</.link>
+    </:action>
+    <:action :let={category}>
+      <.link
+        phx-click="delete"
+        phx-value-id={category.id}
+        data-confirm="Delete this category and all of its custom fields?"
+      >
+        Delete
+      </.link>
+    </:action>
+  </.table>
+</Layouts.app>

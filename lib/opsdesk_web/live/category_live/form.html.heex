@@ -1,0 +1,16 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <.header>
+    {@page_title}
+    <:subtitle>Leave the slug blank to generate it from the name.</:subtitle>
+  </.header>
+
+  <.form for={@form} id="category-form" phx-change="validate" phx-submit="save">
+    <.input field={@form[:name]} type="text" label="Name" />
+    <.input field={@form[:slug]} type="text" label="Slug" />
+
+    <div class="mt-4 flex gap-2">
+      <.button variant="primary" phx-disable-with="Saving...">Save</.button>
+      <.button navigate={~p"/admin/categories"}>Cancel</.button>
+    </div>
+  </.form>
+</Layouts.app>

@@ -75,7 +75,8 @@ defmodule OpsdeskWeb.Router do
 
   scope "/admin", OpsdeskWeb do
     pipe_through [:browser, :require_authenticated_user]
-      live_session :admin,
+
+    live_session :admin,
       on_mount: [
         {OpsdeskWeb.UserAuth, :require_authenticated},
         {OpsdeskWeb.UserAuth, {:ensure_permission, :manage_categories}}
@@ -85,6 +86,5 @@ defmodule OpsdeskWeb.Router do
       live "/categories/:id/edit", CategoryLive.Form, :edit
       live "/categories/:id", CategoryLive.Show, :show
     end
-
   end
 end
